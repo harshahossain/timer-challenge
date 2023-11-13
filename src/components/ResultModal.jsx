@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 //for this forward ref (see more in TimeChallenge comp for info)
 //for this to use I have to wrap it around the whole component
+import { createPortal } from "react-dom";
 
 //after  wraping we dont need to destructr the ref anymore but it will recieve a second arg after the props arg
 const ResultModal = forwardRef(function ResultModal(
@@ -33,9 +34,12 @@ const ResultModal = forwardRef(function ResultModal(
 
   const userLost = remainingTime <= 0;
   const formattedRemainingTime = (remainingTime / 1000).toFixed(2);
-  return (
-    <dialog ref={dialog} className="result-modal">
+  const score = Math.round((1 - remainingTime / (targetTime * 1000)) * 100);
+
+  return createPortal(
+    <dialog onClose={onReset} ref={dialog} className="result-modal">
       {userLost && <h2>You Lost</h2>}
+      {!userLost && <h2>Your Score: {score}</h2>}
       <p>
         The target time was <strong>{targetTime} seconds.</strong>
       </p>
@@ -46,7 +50,8 @@ const ResultModal = forwardRef(function ResultModal(
       <form method="dialog" onSubmit={onReset}>
         <button>Close</button>
       </form>
-    </dialog>
+    </dialog>,
+    document.getElementById("modal")
   );
 });
 
